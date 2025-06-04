@@ -24,14 +24,9 @@ class HatDetectionGUI:
         self.root.title("Hat Detection App")
         
         # Make the window start maximized
-        self.root.state('zoomed')  # For Windows
-        # Alternative methods for other platforms
-        # self.root.attributes('-zoomed', True)  # For Linux
-        # self.root.attributes('-fullscreen', True)  # Fullscreen option
-        
+        self.root.state('zoomed')
         self.root.configure(bg=DARK_BG)
-        self.root.minsize(900, 600)  # Set minimum size
-        
+        self.root.minsize(900, 600)
         # Detection metrics
         self.detection_time = 0
         self.confidence_score = 0
@@ -47,12 +42,8 @@ class HatDetectionGUI:
         else:
             # Use the validation accuracy from training output
             self.best_model_accuracy = 97.90
-        
-        # Set up the model
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = HatDetector()
-        
-        # Load the saved model if it exists
         if os.path.exists('best_model.pth'):
             self.model.load_state_dict(torch.load('best_model.pth', map_location=self.device))
             self.model.to(self.device)
@@ -66,11 +57,7 @@ class HatDetectionGUI:
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
-        
-        # Create main layout with two panels
         self.setup_layout()
-        
-        # Image placeholder
         self.image_path = None
         self.display_image = None
         self.is_processing = False
@@ -80,8 +67,6 @@ class HatDetectionGUI:
         # Main container that will hold everything
         self.main_container = tk.Frame(self.root, bg=DARK_BG)
         self.main_container.pack(fill=tk.BOTH, expand=True)
-        
-        # Create content frame that will hold left and right panels
         self.content_frame = tk.Frame(self.main_container, bg=DARK_BG)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -92,13 +77,9 @@ class HatDetectionGUI:
         # Right panel for stats
         self.right_panel = tk.Frame(self.content_frame, bg=INFO_BG, width=250, padx=15, pady=20)
         self.right_panel.pack(side=tk.RIGHT, fill=tk.Y)
-        self.right_panel.pack_propagate(False)  # Keep width fixed
-        
-        # Create banner at the bottom
+        self.right_panel.pack_propagate(False)
         self.banner_frame = tk.Frame(self.main_container, bg=BANNER_BG, height=40)
         self.banner_frame.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Add the tagline to the banner
         tagline = tk.Label(
             self.banner_frame,
             text="Hat or no hat? That is the question",
@@ -108,13 +89,10 @@ class HatDetectionGUI:
             pady=10
         )
         tagline.pack()
-        
-        # Create widgets in each panel
         self.create_left_panel_widgets()
         self.create_right_panel_widgets()
     
     def create_right_panel_widgets(self):
-        # Title for info panel
         info_title = tk.Label(
             self.right_panel,
             text="DETECTION STATS",
@@ -123,15 +101,10 @@ class HatDetectionGUI:
             fg=HIGHLIGHT_COLOR
         )
         info_title.pack(pady=(0, 20))
-        
-        # Separator
         separator = ttk.Separator(self.right_panel, orient='horizontal')
         separator.pack(fill=tk.X, pady=5)
-        
-        # Model info section
         model_section = tk.Frame(self.right_panel, bg=INFO_BG, pady=10)
         model_section.pack(fill=tk.X)
-        
         model_title = tk.Label(
             model_section,
             text="Model Information",
@@ -141,7 +114,6 @@ class HatDetectionGUI:
         )
         model_title.pack(anchor=tk.W)
         
-        # Device info
         device_frame = tk.Frame(model_section, bg=INFO_BG, pady=5)
         device_frame.pack(fill=tk.X)
         
@@ -165,7 +137,6 @@ class HatDetectionGUI:
         )
         self.device_value.pack(side=tk.LEFT)
         
-        # Model accuracy
         accuracy_frame = tk.Frame(model_section, bg=INFO_BG, pady=5)
         accuracy_frame.pack(fill=tk.X)
         
@@ -351,7 +322,7 @@ class HatDetectionGUI:
             bg=DARKER_BG
         )
         self.image_frame.pack(padx=10, pady=10)
-        self.image_frame.pack_propagate(False)  # Keep the frame size fixed
+        self.image_frame.pack_propagate(False) 
         
         # Image placeholder with styling
         self.image_label = tk.Label(
@@ -362,12 +333,8 @@ class HatDetectionGUI:
             font=("Arial", 12, "italic")
         )
         self.image_label.pack(expand=True, fill=tk.BOTH)
-        
-        # Button frame
         button_frame = tk.Frame(self.left_panel, bg=DARK_BG)
         button_frame.pack(pady=15)
-        
-        # Style for buttons
         button_style = {
             "bg": ACCENT_BG,
             "fg": TEXT_COLOR,
@@ -380,8 +347,6 @@ class HatDetectionGUI:
             "width": 15,
             "cursor": "hand2"
         }
-        
-        # Upload button with custom styling
         upload_button = tk.Button(
             button_frame, 
             text="Upload Image", 
@@ -389,8 +354,6 @@ class HatDetectionGUI:
             **button_style
         )
         upload_button.pack(side=tk.LEFT, padx=10)
-        
-        # Detect button with custom styling
         self.detect_button = tk.Button(
             button_frame, 
             text="Detect Hat", 
@@ -398,12 +361,8 @@ class HatDetectionGUI:
             **button_style
         )
         self.detect_button.pack(side=tk.LEFT, padx=10)
-        
-        # Progress frame
         self.progress_frame = tk.Frame(self.left_panel, bg=DARK_BG)
         self.progress_frame.pack(pady=(5, 15), fill=tk.X)
-        
-        # Progress bar (hidden initially)
         self.progress_var = tk.DoubleVar()
         self.progress = ttk.Progressbar(
             self.progress_frame, 
@@ -412,9 +371,7 @@ class HatDetectionGUI:
             mode='indeterminate'
         )
         self.progress.pack(pady=5)
-        self.progress.pack_forget()  # Hide initially
-        
-        # Processing label (hidden initially)
+        self.progress.pack_forget()  
         self.processing_label = tk.Label(
             self.progress_frame,
             text="Processing image...",
@@ -423,13 +380,10 @@ class HatDetectionGUI:
             font=("Arial", 10, "italic")
         )
         self.processing_label.pack()
-        self.processing_label.pack_forget()  # Hide initially
-        
-        # Result label with styled text
+        self.processing_label.pack_forget()
         self.result_frame = tk.Frame(self.left_panel, bg=ACCENT_BG, bd=1, relief=tk.FLAT)
         self.result_frame.pack(pady=10, fill=tk.X)
-        self.result_frame.pack_forget()  # Hide initially
-        
+        self.result_frame.pack_forget()
         self.result_label = tk.Label(
             self.result_frame,
             text="", 
@@ -440,8 +394,6 @@ class HatDetectionGUI:
             pady=15
         )
         self.result_label.pack()
-        
-        # Configure the progress bar style
         style = ttk.Style()
         style.theme_use('default')
         style.configure(
@@ -452,21 +404,14 @@ class HatDetectionGUI:
         )
     
     def upload_image(self):
-        # Reset detection state
         self.hide_result()
-        
-        # Open file dialog to select an image
         file_path = filedialog.askopenfilename(
             title="Select Image",
             filetypes=[("Image files", "*.jpg *.jpeg *.png")]
         )
-        
         if file_path:
             self.image_path = file_path
-            # Load and display the image
             image = Image.open(file_path)
-            
-            # Calculate resize dimensions while maintaining aspect ratio
             width, height = image.size
             max_size = 350
             
@@ -476,13 +421,9 @@ class HatDetectionGUI:
             else:
                 new_height = max_size
                 new_width = int(width * (max_size / height))
-            
             image = image.resize((new_width, new_height), Image.LANCZOS)
             self.display_image = ImageTk.PhotoImage(image)
-            
-            # Position image centered in frame
             self.image_label.config(image=self.display_image, text="")
-    
     def start_detection(self):
         if not self.image_path:
             messagebox.showerror("Error", "Please upload an image first!")
@@ -496,12 +437,10 @@ class HatDetectionGUI:
         self.detect_button.config(state=tk.DISABLED)
         self.progress.pack(pady=5)
         self.processing_label.pack()
-        self.progress.start(10)  # Start progress animation
-        
+        self.progress.start(10)
         # Reset detection stats
         self.time_value.config(text="-- ms")
         self.confidence_value.config(text="-- %")
-        
         # Start detection in a separate thread
         threading.Thread(target=self.detect_hat).start()
     
@@ -509,24 +448,15 @@ class HatDetectionGUI:
         start_time = time.time()
         
         try:
-            # Load and preprocess the image
             image = Image.open(self.image_path).convert('RGB')
             image_tensor = self.transform(image).unsqueeze(0).to(self.device)
-            
-            # Make prediction
             with torch.no_grad():
                 outputs = self.model(image_tensor)
                 _, prediction = torch.max(outputs, 1)
-                
-                # Get confidence score (softmax of outputs)
                 softmax = torch.nn.functional.softmax(outputs, dim=1)
                 confidence = softmax[0][prediction.item()].item() * 100
-            
-            # Calculate detection time
             end_time = time.time()
-            elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-            
-            # Store detection metrics
+            elapsed_time = (end_time - start_time) * 1000 
             self.detection_time = elapsed_time
             self.confidence_score = confidence
             self.detection_count += 1
@@ -544,18 +474,13 @@ class HatDetectionGUI:
             self.root.after(0, self.reset_ui)
     
     def update_result(self, prediction, confidence, elapsed_time, timestamp):
-        # Show result frame
         self.result_frame.pack(pady=10, fill=tk.X)
-        
-        # Display result with confidence
         if prediction == 1:
             result = f"Hat Detected!"
             self.result_label.config(text=result, fg=HIGHLIGHT_COLOR)
         else:
             result = f"No Hat Detected"
             self.result_label.config(text=result, fg=TEXT_COLOR)
-        
-        # Update stats in right panel
         self.confidence_value.config(text=f"{confidence:.2f}%")
         self.time_value.config(text=f"{elapsed_time:.2f} ms")
         self.count_value.config(text=str(self.detection_count))
